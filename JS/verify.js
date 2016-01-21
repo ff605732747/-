@@ -10,7 +10,7 @@
  **/
 ;
 ( function ( $ ) {
-	$.fn.an_verify2 = function () {
+	$.fn.verify = function () {
 		var $this = $( this );
 
 		//验证规则，规则与提示信息
@@ -292,13 +292,14 @@
 			verifyType: function ( $target, options ) {
 				var type, index = "";
 				if ( index == $.trim( $target.val() ) ) {
-					if ( $target.parent()
-						.hasClass( 'outerdiv' ) ) {
-						$target.nextAll()
-							.remove();
-						$target.unwrap()
-							.attr( 'data-result', "success" );
+					if ( $target.hasClass( 'u-input-cor' ) ) {
+
+						$target.removeClass( 'u-input-cor' );
+					} else if ( $target.hasClass( 'u-input-err' ) ) {
+						$target.removeClass( 'u-input-err' );
+						$target.prev().remove();
 					}
+					$target.attr( 'data-result', "success" );
 					return;
 				}
 				for ( type in options.type ) {
@@ -310,7 +311,6 @@
 				}
 			},
 
-
 			/**
 			 * 验证后，正确||错误状态显示
 			 * @method function
@@ -320,28 +320,22 @@
 			 * @return {Void}
 			 */
 			showMsg: function ( $target, msg, flag ) {
-				var outerdiv = '<div class="outerdiv"></div>';
-				var innerdiv = '<i class="icon-close  error"></i><div class="innerdiv">';
-				innerdiv += msg + '</div>';
-				var icon = '<i class="fa fa-check correct"></i>';
-				if ( $target.parent()
-					.hasClass( "outerdiv" ) ) {
-					$target.nextAll()
-						.remove();
-					$target.unwrap();
+
+				if ( $target.hasClass( 'u-input-cor' ) ) {
+
+					$target.removeClass( 'u-input-cor' );
+				} else if ( $target.hasClass( 'u-input-err' ) ) {
+					$target.removeClass( 'u-input-err' );
+					$target.prev().remove();
 				}
 
 				if ( flag ) {
 					$target.attr( 'data-result', "success" );
-					$target.wrap( outerdiv )
-						.parent()
-						.append( icon );
-
+					$target.addClass( 'u-input-cor' );
 				} else {
 					$target.attr( 'data-result', "error" );
-					$target.wrap( outerdiv )
-						.parent()
-						.append( innerdiv );
+					$target.before( '<div class="combo-box r f-bg-danger-lt">' + msg + '</div>' )
+						.addClass( 'u-input-err' );
 				}
 			},
 
@@ -470,15 +464,15 @@
 
 				//默认参数配置
 					defaults = {
-					required: this.attr( "data-required" ),
-					minL: plugin.defaultMinL( $this ),
-					maxL: plugin.defaultMaxL( $this ),
-					type: plugin.typeConvert( $this ),
-					requiredMsg: this.attr( "data-requiredMsg" ),
-				};
+						required: this.attr( "data-required" ),
+						minL: plugin.defaultMinL( $this ),
+						maxL: plugin.defaultMaxL( $this ),
+						type: plugin.typeConvert( $this ),
+						requiredMsg: this.attr( "data-requiredMsg" ),
+					};
 
-				var options = $.extend( defaults, options||{} );
-
+				var options = $.extend( defaults, options || {} );
+				$this.wrap( '<div class="m-tooltip"></div>' );
 				this.addClass( "data-verify" );
 
 				if ( eval( options.required ) ) {
@@ -501,23 +495,23 @@
 				//获取当前DOM的nodename select为change事件，input为blur事件，【预留出radio】
 				switch ( this[ 0 ].nodeName.toLocaleLowerCase() ) {
 
-				case "select":
+					case "select":
 
-					this.change( function () {
+						this.change( function () {
 
-						plugin.verifyType( $( this ), options );
+							plugin.verifyType( $( this ), options );
 
-					} );
+						} );
 
-					break;
+						break;
 
-				default:
+					default:
 
-					this.blur( function () {
+						this.blur( function () {
 
-						plugin.verifyType( $( this ), options );
+							plugin.verifyType( $( this ), options );
 
-					} );
+						} );
 				}
 
 			}
