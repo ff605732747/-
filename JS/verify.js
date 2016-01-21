@@ -12,28 +12,23 @@
 ( function ( $ ) {
 	$.fn.verify = function () {
 		var $this = $( this );
-
 		//验证规则，规则与提示信息
-		var msgAndRules = {
+		var MsgAndRules = {
 
 			/**
-			 * 验证规则主程，是否正确，返回提示信息
-			 * @method function
-			 * @param  {String} str   输入的字符串
-			 * @param  {String} type  验证类型
-			 * @param  {String} msg   提示信息
-			 * @param  {Number} minL  最小值
-			 * @param  {Number} maxL  最大值
-			 * @return {[Array]}				[true&&false 提示信息]
+			 * 验证过程主程，
+			 * @method RUEL
+			 * @param  {Object} options 参数对象
+			 * @return {Array}
 			 */
-
-			RUEL: function ( str, type, msg, minL, maxL ) {
+			RUEL: function ( options ) {
 				var flag, errmsg = "";
-				flag = msgAndRules.RULES[ type ]( str, minL, maxL );
-				if ( '' == $.trim( msg ) || undefined == msg || null == msg ) {
-					errmsg = msgAndRules.MSG[ type ];
+
+				flag = MsgAndRules.RULES[ options.type ]( options.str, options.minL, options.maxL );
+				if ( '' == $.trim( options.msg ) || undefined == options.msg || null == options.msg ) {
+					errmsg = MsgAndRules.MSG[ options.type ];
 				} else {
-					errmsg = msg;
+					errmsg = options.msg;
 				}
 				var arr = [ flag, errmsg ];
 				return arr;
@@ -280,31 +275,55 @@
 
 		};
 
-		var plugin = {
+		var Plugin = {
+			/**
+			 * 对当前input拥有的类名进行判断，用于获得焦点时清除之前的样式
+			 * 若为成功样式则input u-input-cor样式清除
+			 * 若为错误样式不仅清除input样式u-input-err并将data-result设置为success
+			 * @method checkClassNameSetAttr
+			 * @param  {Object}  $target
+			 * @return {[Void]}
+			 */
+			checkClassNameSetAttr: function ( $target ) {
+				if ( $target.hasClass( 'u-input-cor' ) ) {
+					$target.removeClass( 'u-input-cor' );
+				} else if ( $target.hasClass( 'u-input-err' ) ) {
+					$target.removeClass( 'u-input-err' );
+					$target.prev()
+						.remove();
+				}
+				$target.attr( 'data-result', "success" );
+			},
 
 			/**
 			 * 验证方法封装
+			 * 判断 值是否为空，若为空，则清除样式 return
+			 *
 			 * @method function
 			 * @param  {Object} $target  操作的DOM,jquery对象
 			 * @param  {Object} options  配置对象
 			 * @return {Void}
 			 */
 			verifyType: function ( $target, options ) {
-				var type, index = "";
-				if ( index == $.trim( $target.val() ) ) {
-					if ( $target.hasClass( 'u-input-cor' ) ) {
-
-						$target.removeClass( 'u-input-cor' );
-					} else if ( $target.hasClass( 'u-input-err' ) ) {
-						$target.removeClass( 'u-input-err' );
-						$target.prev().remove();
-					}
-					$target.attr( 'data-result', "success" );
+				var type, index = "",
+					value = $target.val();
+				if ( index == $.trim( value ) ) {
+					Plugin.checkClassNameSetAttr( $target );
 					return;
 				}
+
+
 				for ( type in options.type ) {
-					var arr = msgAndRules.RUEL( $target.val(), type, options.type[ type ], options.minL, options.maxL );
-					plugin.showMsg( $target, arr[ 1 ], arr[ 0 ] );
+					//( str, type, msg, minL, maxL )
+					var _options = {
+						str: value,
+						type: type,
+						msg: options.type[ type ],
+						minL: options.minL,
+						maxL: options.maxL
+					};
+					var arr = MsgAndRules.RUEL( _options );
+					Plugin.showMsg( $target, arr[ 1 ], arr[ 0 ] );
 					if ( !arr[ 0 ] ) {
 						return;
 					}
@@ -321,13 +340,7 @@
 			 */
 			showMsg: function ( $target, msg, flag ) {
 
-				if ( $target.hasClass( 'u-input-cor' ) ) {
-
-					$target.removeClass( 'u-input-cor' );
-				} else if ( $target.hasClass( 'u-input-err' ) ) {
-					$target.removeClass( 'u-input-err' );
-					$target.prev().remove();
-				}
+				Plugin.checkClassNameSetAttr( $target );
 
 				if ( flag ) {
 					$target.attr( 'data-result', "success" );
@@ -391,16 +404,21 @@
 				if ( undefined == reqmsg || "" == reqmsg.trim() || null == reqmsg ) {
 					reqmsg = "这里必填项"
 				}
-				var arr = msgAndRules.RUEL( $target.val(), "isNotEmpty", reqmsg );
+				var options = {
+					str: $target.val(),
+					type: "isNotEmpty",
+					msg: reqmsg
+				}
+				var arr = MsgAndRules.RUEL( options );
 				if ( arr[ 0 ] ) {
-					plugin.showMsg( $target, arr[ 1 ], arr[ 0 ] );
+					Plugin.showMsg( $target, arr[ 1 ], arr[ 0 ] );
 				} else {
-					plugin.showMsg( $target, arr[ 1 ], arr[ 0 ] );
+					Plugin.showMsg( $target, arr[ 1 ], arr[ 0 ] );
 				}
 			}
 		};
 
-		var config = {
+		var Config = {
 
 			//封装ajax
 			Ajax: function () {
@@ -440,7 +458,7 @@
 					//必填验证
 					var status = $target.attr( 'data-result' );
 					if ( eval( flag ) && ( "success" == status || undefined == status ) ) {
-						plugin.requireMethod( $target );
+						Plugin.requireMethod( $target );
 					}
 					status = $target.attr( 'data-result' );
 					if ( "error" == status ) {
@@ -464,16 +482,17 @@
 
 				//默认参数配置
 					defaults = {
-						required: this.attr( "data-required" ),
-						minL: plugin.defaultMinL( $this ),
-						maxL: plugin.defaultMaxL( $this ),
-						type: plugin.typeConvert( $this ),
-						requiredMsg: this.attr( "data-requiredMsg" ),
-					};
+					required: this.attr( "data-required" ),
+					minL: Plugin.defaultMinL( $this ),
+					maxL: Plugin.defaultMaxL( $this ),
+					type: Plugin.typeConvert( $this ),
+					requiredMsg: this.attr( "data-requiredMsg" ),
+				};
 
 				var options = $.extend( defaults, options || {} );
 				$this.wrap( '<div class="m-tooltip"></div>' );
 				this.addClass( "data-verify" );
+				this.attr( "data-result", "success" );
 
 				if ( eval( options.required ) ) {
 
@@ -495,35 +514,35 @@
 				//获取当前DOM的nodename select为change事件，input为blur事件，【预留出radio】
 				switch ( this[ 0 ].nodeName.toLocaleLowerCase() ) {
 
-					case "select":
+				case "select":
 
-						this.change( function () {
+					this.change( function () {
 
-							plugin.verifyType( $( this ), options );
+						Plugin.verifyType( $( this ), options );
 
-						} );
+					} );
 
-						break;
+					break;
 
-					default:
+				default:
 
-						this.blur( function () {
+					this.blur( function () {
 
-							plugin.verifyType( $( this ), options );
+						Plugin.verifyType( $( this ), options );
 
-						} );
+					} );
 				}
 
 			}
 		};
 
 		var method = arguments[ 0 ];
-		if ( config[ method ] ) {
-			method = config[ method ];
+		if ( Config[ method ] ) {
+			method = Config[ method ];
 		} else if ( typeof ( method ) == 'object' || !method ) {
-			method = config.init;
+			method = Config.init;
 		} else {
-			$.error( 'Method ' + method + ' does not exist on jQuery.an_ verify Plugin' );
+			$.error( 'Method ' + method + ' does not exist on jQuery.verify Config' );
 			return this;
 		}
 		return method.apply( this, arguments );
