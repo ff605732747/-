@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>
+      验证插件</title>
+    <script src="../../AndyUI/admin/js/jquery.min.js"></script>
+    <script src="../../AndyUI/admin/js/verify.js"></script>
+    <link rel="stylesheet" href="../../AndyUI/admin/css/andyui.css">
+
+
+  </head>
+
+  <body>
+    <div class="u-panel window" style="width:80%">
+      <div class="panel-head">
+        <div class="panel-head-title">
+          <i class="iconfont"></i>面板
+        </div>
+        <div class="panel-head-bar">
+          <i class="iconfont" title="最大化"></i><i class="iconfont" title="关闭"></i>
+        </div>
+      </div>
+      <div class="panel-body">
+        <form id="testForm">
+          <table class="m-table-form">
+            <tbody>
+              <tr>
+                <td>
+                  <div class="u-formitem">
+                    <label>测试：中文，必填
+                      <!-- <div class="m-tooltip arrow f-inline">
+                        <i class="iconfont f-color-info f-m-l-xs"></i>
+                        <div class="combo-box f-bg-light-lt" style="top:16px">
+                          提示性语句...
+                        </div>
+                      </div> -->
+                    </label>
+                    <div class="m-tooltip">
+                      <input type="text" class="u-input " id="text1" data-required: "true">
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="u-formitem">
+                    <label>手机号验证</label>
+                    <div class="m-tooltip">
+                      <input type="text" class="u-input" id="text2">
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="u-formitem">
+                    <label>身份证号：</label>
+                    <div class="m-tooltip">
+                      <input type="text" class="u-input" id="text3">
+                    </div>
+                </td>
+                <td>
+                  <div class="u-formitem">
+                    <label>特殊字符</label>
+                    <div class="m-tooltip">
+                      <input type="text" class="u-input" id="text4">
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="u-formitem">
+                    <label>URL</label>
+                    <div class="m-tooltip">
+                      <input type="text" class="u-input" id="text5">
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="u-formitem">
+                    <label>座机号</label>
+                    <div class="m-tooltip">
+                      <input type="text" class="u-input" id="text6">
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="u-formitem">
+                    <label>邮编</label>
+                    <div class="m-tooltip">
+                      <input type="text" class="u-input" id="text7">
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="u-formitem">
+                    <label>正整数</label>
+                    <div class="m-tooltip">
+                      <input type="text" class="u-input" id="text8">
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="u-formitem">
+                    <label>英文数字下划线</label>
+                    <div class="m-tooltip">
+                      <input type="text" class="u-input" id="text9">
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="u-formitem">
+                    <label>字符长度</label>
+                    <div class="m-tooltip">
+                      <input type="text" class="u-input" id="text10">
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="u-formitem">
+                    <label>即时验证测试</label>
+                    <div class="m-tooltip">
+                      <input type="text" class="u-input" id="text12">
+                    </div>
+                </td>
+                <td>
+                  <div class="u-formitem">
+                    <label>单独显示状态测试</label>
+                    <div class="m-tooltip">
+                      <input type="text" class="u-input" id="text11">
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="u-formitem">
+                    <label>邮箱</label>
+                    <div class="m-tooltip">
+                      <input type="text" class="u-input" id="text13">
+                    </div>
+                </td>
+                <td>
+                  <div class="u-formitem">
+                    <label></label>
+                    <div class="m-tooltip">
+                      <input type="text" class="u-input" >
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <button type="button" id="submit">
+                    提交
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </form>
+        </div>
+        </div>
+  </body>
+  <script>
+    $("#text1").verify({
+      //    required: true,
+      type: {
+        onlyZh: "只能输入中文",
+        isAvaiableLength: "请输入2-5个字符"
+      },
+      minL: 2,
+      maxL: 5,
+      requiredMsg: "这里只能用中文啦"
+    });
+
+    $("#text2").verify({
+      required: true,
+      type: {
+        checkMobile: "请输入有效手机号",
+      }
+    });
+
+    $("#text3").verify({
+      required: true,
+      type: {
+        checkIdCard: ""
+      }
+    });
+    $("#text4").verify({
+      type: {
+        checkQuote: ""
+      }
+    });
+
+
+    $("#text5").verify({
+      type: {
+        checkURL: ""
+      }
+    });
+
+
+    $("#text6").verify({
+      type: {
+        checkPhone: ""
+      }
+    });
+
+    $("#text7").verify({
+      type: {
+        postOffice: ""
+      }
+    });
+
+    $("#text8").verify({
+      type: {
+        isNumber: ""
+      }
+    });
+
+    $("#text9").verify({
+      type: {
+        isNumberOr_Letter: ""
+      }
+    });
+
+    $("#text10").verify({
+      type: {
+        isAvaiableLength: ""
+      },
+      minL: 5
+    });
+
+    $("#text11").verify("setStatus", {
+      flag: true,
+      msg: "测试用"
+    });
+
+    $("#text12").verify({
+      promptly: true,
+      promptlyConfig: {
+        url: "https://www.baidu.com",
+        type: 'get',
+        dataType: "String",
+        data: {},
+        success: function() {
+          alert("成功");
+        },
+        error: function() {
+          alert("失败");
+        }
+      },
+      type: {
+        isAvaiableLength: ""
+      }
+    });
+
+    $("#text13").verify({
+      type: {
+        checkEmail: ""
+      }
+    });
+    $("#submit").click(function() {
+      $(this).verify("required", "#testForm");
+    });
+
+  </script>
+
+</html>
