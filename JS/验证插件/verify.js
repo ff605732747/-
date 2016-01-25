@@ -11,6 +11,7 @@
 ;
 ( function ( $ ) {
 	$.fn.verify = function () {
+
 		var $this = $( this );
 		//验证规则，规则与提示信息
 		var MsgAndRules = {
@@ -44,6 +45,7 @@
 				checkURL: "URL格式错误",
 				checkPhone: "座机号码格式错误",
 				postOffice: "邮编错误",
+				checkEmail: "邮箱错误",
 				isNumber: "不是正整数",
 				isNumberOr_Letter: "只能由英文和数字下划线组成",
 				isAvaiableLength: "字符长度不在规定范围内"
@@ -243,6 +245,11 @@
 					var re = /^[1-9][0-9]{5}$/;
 					return re.test( str );
 				},
+				checkEmail: function ( str ) {
+					var myReg = /^[-_A-Za-z0-9]+@([_A-Za-z0-9]+\.)+[A-Za-z0-9]{2,3}$/;
+					if ( myReg.test( str ) ) return true;
+					return false;
+				},
 
 				//检查输入字符串是否符合正整数格式
 				isNumber: function ( s ) {
@@ -280,11 +287,11 @@
 			 * 对当前input拥有的类名进行判断，用于获得焦点时清除之前的样式
 			 * 若为成功样式则input u-input-cor样式清除
 			 * 若为错误样式不仅清除input样式u-input-err并将data-result设置为success
-			 * @method checkClassNameSetAttr
+			 * @method clearClassNameSetAttr
 			 * @param  {Object}  $target
 			 * @return {[Void]}
 			 */
-			checkClassNameSetAttr: function ( $target ) {
+			clearClassNameSetAttr: function ( $target ) {
 				if ( $target.hasClass( 'u-input-cor' ) ) {
 					$target.removeClass( 'u-input-cor' );
 				} else if ( $target.hasClass( 'u-input-err' ) ) {
@@ -308,13 +315,12 @@
 				var type, index = "",
 					value = $target.val();
 				if ( index == $.trim( value ) ) {
-					Plugin.checkClassNameSetAttr( $target );
+					Plugin.clearClassNameSetAttr( $target );
 					return;
 				}
 
-
 				for ( type in options.type ) {
-					//( str, type, msg, minL, maxL )
+
 					var _options = {
 						str: value,
 						type: type,
@@ -322,11 +328,14 @@
 						minL: options.minL,
 						maxL: options.maxL
 					};
+
 					var arr = MsgAndRules.RUEL( _options );
+
 					Plugin.showMsg( $target, arr[ 1 ], arr[ 0 ] );
-					if ( !arr[ 0 ] ) {
-						return;
-					}
+					if ( !arr[ 0 ] ) return;
+				}
+				if ( eval( options.promptly ) ) {
+					Config.ajax( options.promptlyConfig );
 				}
 			},
 
@@ -340,7 +349,7 @@
 			 */
 			showMsg: function ( $target, msg, flag ) {
 
-				Plugin.checkClassNameSetAttr( $target );
+				Plugin.clearClassNameSetAttr( $target );
 
 				if ( flag ) {
 					$target.attr( 'data-result', "success" );
@@ -412,6 +421,7 @@
 				var arr = MsgAndRules.RUEL( options );
 				if ( arr[ 0 ] ) {
 					Plugin.showMsg( $target, arr[ 1 ], arr[ 0 ] );
+					$target.attr( 'data-result', "success" );
 				} else {
 					Plugin.showMsg( $target, arr[ 1 ], arr[ 0 ] );
 				}
@@ -421,23 +431,31 @@
 		var Config = {
 
 			//封装ajax
-			Ajax: function () {
-				var callback = arguments[ 2 ];
-				var defaults = {
+			ajax: function () {
+				var defaults, options;
+				if ( arguments.length == 1 ) {
+					options = $.extend( defaults, arguments[ 0 ] );
+					console.log( options );
+				} else {
+					options = $.extend( defaults, arguments[ 1 ] );
+				}
+
+				defaults = {
 					async: true,
 					type: "get",
 					url: "",
 					data: "",
+					dataType: "json",
 					success: function () {},
 					error: function () {},
 				};
 
-				var options = $.extend( defaults, arguments[ 1 ] );
 				$.ajax( {
 					async: options.async,
 					type: options.type,
 					url: options.url,
 					data: options.data,
+					dataType: options.dataType,
 					success: options.success,
 					error: options.error
 				} );
@@ -469,10 +487,22 @@
 				return isOK;
 			},
 
-
-			showMsg: function () {
-				var msg = arguments[ 1 ];
-				var flag = arguments[ 2 ];
+			/**
+			 * 单独显示状态 正确&&错误
+			 * @method status
+			 * @return {[type]} [description]
+			 */
+			setStatus: function () {
+				var options = arguments[ 1 ];
+				var $target = $( this );
+				if ( !$target.hasClass( "data-verify" ) ) {
+					$target.addClass( 'data-verify' );
+				}
+				if ( options.flag ) {
+					Plugin.showMsg( $target, options.msg, options.flag );
+				} else {
+					Plugin.showMsg( $target, options.msg, options.flag );
+				}
 			},
 
 			//程序主体
@@ -482,6 +512,8 @@
 
 				//默认参数配置
 					defaults = {
+					promptly: this.attr( "data-promptly" ),
+					promptlyConfig: this.attr( "data-promptlyConfig" ),
 					required: this.attr( "data-required" ),
 					minL: Plugin.defaultMinL( $this ),
 					maxL: Plugin.defaultMaxL( $this ),
@@ -490,7 +522,7 @@
 				};
 
 				var options = $.extend( defaults, options || {} );
-				$this.wrap( '<div class="m-tooltip"></div>' );
+				//	$this.wrap( '<div class="m-tooltip"></div>' );
 				this.addClass( "data-verify" );
 				this.attr( "data-result", "success" );
 
@@ -527,9 +559,7 @@
 				default:
 
 					this.blur( function () {
-
 						Plugin.verifyType( $( this ), options );
-
 					} );
 				}
 
