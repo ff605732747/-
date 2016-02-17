@@ -314,7 +314,7 @@
 			verifyType: function ( $target, options ) {
 				var type, index = "",
 					value = $target.val();
-				if ( index == $.trim( value ) ) {
+				if ( index ==  value  ) {
 					Plugin.clearClassNameSetAttr( $target );
 					return;
 				}
@@ -447,7 +447,7 @@
 					data: "",
 					dataType: "json",
 					success: function () {},
-					error: function () {},
+					error: function () {}
 				};
 
 				$.ajax( {
@@ -518,7 +518,7 @@
 					minL: Plugin.defaultMinL( $this ),
 					maxL: Plugin.defaultMaxL( $this ),
 					type: Plugin.typeConvert( $this ),
-					requiredMsg: this.attr( "data-requiredMsg" ),
+					requiredMsg: this.attr( "data-requiredMsg" )
 				};
 
 				var options = $.extend( defaults, options || {} );
