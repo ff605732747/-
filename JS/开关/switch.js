@@ -10,18 +10,15 @@
 			var $switchList = $( ".u-switch" );
 			$switchList.each( function ( index, el ) {
 				var
-					$input = $( el )
-					.children(),
+					$input = $( el ).children(),
 					$el = $( el ),
 					flag = $input.is( ':checked' ) ? true : false,
 					_i_on = '<i class="iconfont ">&#xe61c;</i> ',
 					_i_off = '<i class="iconfont ">&#xe61d;</i> ';
 				if ( flag ) {
-					$el.addClass( "on" )
-						.append( _i_on );
+					$el.addClass( "on" ).append( _i_on );
 				} else {
-					$el.addClass( 'off' )
-						.append( _i_off );
+					$el.addClass( 'off' ).append( _i_off );
 				}
 
 				$el.on( {
@@ -50,3 +47,4 @@
 
 
 } )( jQuery );
+y );

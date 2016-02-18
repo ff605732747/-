@@ -13,6 +13,7 @@
 	$.fn.verify = function () {
 
 		var $this = $( this );
+
 		//验证规则，规则与提示信息
 		var MsgAndRules = {
 
@@ -56,7 +57,7 @@
 
 				//必填项
 				isNotEmpty: function ( str ) {
-					return null == str && typeof str == 'undefined' || "" == str.trim() ? false : true;
+					return null == str && typeof str == 'undefined' || "" == $.trim( str ) ? false : true;
 				},
 
 				//只能输入中文
@@ -283,13 +284,28 @@
 		};
 
 		var Plugin = {
+
+			defaultPrompty: function ( $target ) {
+				var flag = $target.attr( 'data-promptly' );
+				if ( 'true' === flag ) {
+					return true;
+				}
+				return false;
+			},
+
+			ajaxConfigConvert: function ( $target ) {
+				var
+					conifg = $target.attr( 'data-ajaxConfig' ),
+					parm = 'parm=' + conifg;
+				return eval( parm );
+			},
 			/**
 			 * 对当前input拥有的类名进行判断，用于获得焦点时清除之前的样式
 			 * 若为成功样式则input u-input-cor样式清除
 			 * 若为错误样式不仅清除input样式u-input-err并将data-result设置为success
 			 * @method clearClassNameSetAttr
-			 * @param  {Object}  $target
-			 * @return {[Void]}
+			 * @param  Object $target
+			 * @return Void
 			 */
 			clearClassNameSetAttr: function ( $target ) {
 				if ( $target.hasClass( 'u-input-cor' ) ) {
@@ -307,14 +323,16 @@
 			 * 判断 值是否为空，若为空，则清除样式 return
 			 *
 			 * @method function
-			 * @param  {Object} $target  操作的DOM,jquery对象
-			 * @param  {Object} options  配置对象
-			 * @return {Void}
+			 * @param  Object $target  操作的DOM,jquery对象
+			 * @param  Object options  配置对象
+			 * @return Void
 			 */
 			verifyType: function ( $target, options ) {
-				var type, index = "",
+				var
+					type,
+					defaultValue = '',
 					value = $target.val();
-				if ( index ==  value  ) {
+				if ( defaultValue == value ) {
 					Plugin.clearClassNameSetAttr( $target );
 					return;
 				}
@@ -330,55 +348,69 @@
 					};
 
 					var arr = MsgAndRules.RUEL( _options );
-
-					Plugin.showMsg( $target, arr[ 1 ], arr[ 0 ] );
+					Plugin.showMsg( $target, arr[ 1 ], arr[ 0 ], options.hoverMsg );
 					if ( !arr[ 0 ] ) return;
 				}
-				if ( eval( options.promptly ) ) {
-					Config.ajax( options.promptlyConfig );
+				if ( options.promptly ) {
+					Config.ajax( options.ajaxConfig );
 				}
 			},
 
 			/**
 			 * 验证后，正确||错误状态显示
 			 * @method function
-			 * @param  {Object} $target 操作的DOM,jQuery对象
-			 * @param  {String} msg     提示信息
-			 * @param  {Booleam} flag   正确&&错误
-			 * @return {Void}
+			 * @param  Object $target 操作的DOM,jQuery对象
+			 * @param  String msg     提示信息
+			 * @param  Booleam flag   正确&&错误
+			 * @return Void
 			 */
-			showMsg: function ( $target, msg, flag ) {
+			showMsg: function ( $target, msg, flag, test ) {
 
 				Plugin.clearClassNameSetAttr( $target );
 
 				if ( flag ) {
-					$target.attr( 'data-result', "success" );
+					$target.attr( 'data-result', 'success' );
 					$target.addClass( 'u-input-cor' );
 				} else {
-					$target.attr( 'data-result', "error" );
+					$target.attr( 'data-result', 'error' );
 					$target.before( '<div class="combo-box r f-bg-danger-lt">' + msg + '</div>' )
 						.addClass( 'u-input-err' );
 				}
+				if ( test && 'error' === $target.attr( 'data-result' ) ) {
+					var dom = $target.siblings( '.f-bg-danger-lt' );
+					dom.hide();
+					$target.hover( function () {
+						dom.show();
+					}, function () {
+						dom.hide();
+					} );
+				}
 			},
-
+			hoverMsg: function ( $target ) {
+				var flag = $target.attr( 'data-hoverMsg' );
+				if ( 'true' === flag ) {
+					return true;
+				}
+				return false;
+			},
 			/**
 			 * 对html属性[data-type]进行转换
 			 * @method function
-			 * @param  {Object} $target 操作的DOM,jQuery对象
-			 * @return {Object}         返回验证类型对象
+			 * @param  Object $target 操作的DOM,jQuery对象
+			 * @return Object         返回验证类型对象
 			 */
 			typeConvert: function ( $target ) {
-				var type = $target.attr( "data-type" );
-				var parm = "parm=" + type;
-				eval( parm );
-				return parm;
+				var
+					type = $target.attr( 'data-type' ),
+					parm = 'parm=' + type;
+				return eval( parm );
 			},
 
 			/**
 			 * 对html属性[data-minl]进行转换
 			 * @method function
-			 * @param  {Object} $target
-			 * @return {Number}
+			 * @param  Object $target
+			 * @return Number
 			 */
 			defaultMinL: function ( $target ) {
 				var minL = $target.attr( 'data-minl' );
@@ -391,8 +423,8 @@
 			/**
 			 * 对html属性[data-maxl]进行转换
 			 * @method function
-			 * @param  {Object} $target
-			 * @return {Number}
+			 * @param  Object $target
+			 * @return Number
 			 */
 			defaultMaxL: function ( $target ) {
 				var maxL = $target.attr( 'data-maxl;' );
@@ -405,23 +437,23 @@
 			/**
 			 * 必填项数据处理，是否通过，必填项提示信息
 			 * @method requireMethod
-			 * @param  {Object}      $target
-			 * @return {Void}
+			 * @param  Object    $target
+			 * @return Void
 			 */
 			requireMethod: function ( $target ) {
-				var reqmsg = $target.attr( "data-reqmsg" );
+				var reqmsg = $target.attr( 'data-reqmsg' );
 				if ( undefined == reqmsg || "" == reqmsg.trim() || null == reqmsg ) {
-					reqmsg = "这里必填项"
+					reqmsg = '这里必填项'
 				}
 				var options = {
 					str: $target.val(),
-					type: "isNotEmpty",
+					type: 'isNotEmpty',
 					msg: reqmsg
 				}
 				var arr = MsgAndRules.RUEL( options );
 				if ( arr[ 0 ] ) {
 					Plugin.showMsg( $target, arr[ 1 ], arr[ 0 ] );
-					$target.attr( 'data-result', "success" );
+					$target.attr( 'data-result', 'success' );
 				} else {
 					Plugin.showMsg( $target, arr[ 1 ], arr[ 0 ] );
 				}
@@ -432,23 +464,27 @@
 
 			//封装ajax
 			ajax: function () {
-				var defaults, options;
-				if ( arguments.length == 1 ) {
-					options = $.extend( defaults, arguments[ 0 ] );
-					console.log( options );
-				} else {
-					options = $.extend( defaults, arguments[ 1 ] );
-				}
 
-				defaults = {
-					async: true,
-					type: "get",
-					url: "",
-					data: "",
-					dataType: "json",
-					success: function () {},
-					error: function () {}
-				};
+				var
+					defaults = {
+						async: true,
+						type: 'get',
+						url: '',
+						data: '',
+						dataType: 'json',
+						success: function () {},
+						error: function () {}
+					},
+					options;
+				if ( arguments.length == 1 ) {
+
+					options = $.extend( defaults, arguments[ 0 ] || {} );
+
+				} else {
+
+					options = $.extend( defaults, arguments[ 1 ] || {} );
+
+				}
 
 				$.ajax( {
 					async: options.async,
@@ -467,41 +503,62 @@
 			 * @return {type} Booleam
 			 */
 			required: function () {
-				var dataVerifyList = $( arguments[ 1 ] )
-					.find( ".data-verify" );
-				var isOK = true;
+				var
+
+					dataVerifyList = $( arguments[ 1 ] )
+					.find( '.data-verify' ),
+
+					isOK = true;
+
 				dataVerifyList.each( function ( index ) {
-					var $target = $( dataVerifyList[ index ] );
-					var flag = $target.attr( "data-required" );
-					//必填验证
-					var status = $target.attr( 'data-result' );
-					if ( eval( flag ) && ( "success" == status || undefined == status ) ) {
+
+					var
+						$target = $( dataVerifyList[ index ] ),
+						flag = $target.attr( 'data-required' ),
+						status = $target.attr( 'data-result' );
+
+					if ( 'true' === flag && ( 'success' == status || undefined == status ) ) {
+
 						Plugin.requireMethod( $target );
+
 					}
+
 					status = $target.attr( 'data-result' );
-					if ( "error" == status ) {
+
+					if ( 'error' == status ) {
+
 						isOK = false;
+
 					}
 
 				} );
+
 				return isOK;
 			},
 
 			/**
 			 * 单独显示状态 正确&&错误
 			 * @method status
-			 * @return {[type]} [description]
+			 * @return void
 			 */
 			setStatus: function () {
-				var options = arguments[ 1 ];
-				var $target = $( this );
-				if ( !$target.hasClass( "data-verify" ) ) {
+				var
+					options = arguments[ 1 ],
+					$target = $( this );
+
+				if ( !$target.hasClass( 'data-verify' ) ) {
+
 					$target.addClass( 'data-verify' );
+
 				}
 				if ( options.flag ) {
+
 					Plugin.showMsg( $target, options.msg, options.flag );
+
 				} else {
+
 					Plugin.showMsg( $target, options.msg, options.flag );
+
 				}
 			},
 
@@ -512,19 +569,21 @@
 
 				//默认参数配置
 					defaults = {
-					promptly: this.attr( "data-promptly" ),
-					promptlyConfig: this.attr( "data-promptlyConfig" ),
-					required: this.attr( "data-required" ),
+					promptly: Plugin.defaultPrompty( $this ),
+					ajaxConfig: Plugin.ajaxConfigConvert( $this ),
+					required: $this.attr( 'data-required' ),
 					minL: Plugin.defaultMinL( $this ),
 					maxL: Plugin.defaultMaxL( $this ),
 					type: Plugin.typeConvert( $this ),
-					requiredMsg: this.attr( "data-requiredMsg" )
+					requiredMsg: this.attr( 'data-requiredMsg' ),
+					hoverMsg: Plugin.hoverMsg( $this )
 				};
 
 				var options = $.extend( defaults, options || {} );
-				//	$this.wrap( '<div class="m-tooltip"></div>' );
-				this.addClass( "data-verify" );
-				this.attr( "data-result", "success" );
+
+				this.addClass( 'data-verify' );
+
+				this.attr( 'data-result', 'success' );
 
 				if ( eval( options.required ) ) {
 
@@ -542,11 +601,10 @@
 
 				}
 
-
 				//获取当前DOM的nodename select为change事件，input为blur事件，【预留出radio】
 				switch ( this[ 0 ].nodeName.toLocaleLowerCase() ) {
 
-				case "select":
+				case 'select':
 
 					this.change( function () {
 
@@ -558,8 +616,16 @@
 
 				default:
 
+					this.focus( function ( event ) {
+
+						Plugin.clearClassNameSetAttr( $( this ) );
+
+					} );
+
 					this.blur( function () {
+
 						Plugin.verifyType( $( this ), options );
+
 					} );
 				}
 
@@ -576,6 +642,5 @@
 			return this;
 		}
 		return method.apply( this, arguments );
-		//    }
 	};
 } )( jQuery );
