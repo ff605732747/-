@@ -286,19 +286,27 @@
 		var Plugin = {
 
 			defaultPrompty: function ( $target ) {
+
 				var flag = $target.attr( 'data-promptly' );
+
 				if ( 'true' === flag ) {
+
 					return true;
+
 				}
+
 				return false;
 			},
 
 			ajaxConfigConvert: function ( $target ) {
+
 				var
 					conifg = $target.attr( 'data-ajaxConfig' ),
 					parm = 'parm=' + conifg;
+
 				return eval( parm );
 			},
+
 			/**
 			 * 对当前input拥有的类名进行判断，用于获得焦点时清除之前的样式
 			 * 若为成功样式则input u-input-cor样式清除
@@ -308,14 +316,21 @@
 			 * @return Void
 			 */
 			clearClassNameSetAttr: function ( $target ) {
+
 				if ( $target.hasClass( 'u-input-cor' ) ) {
+
 					$target.removeClass( 'u-input-cor' );
+
 				} else if ( $target.hasClass( 'u-input-err' ) ) {
+
 					$target.removeClass( 'u-input-err' );
+
 					$target.prev()
 						.remove();
 				}
+
 				$target.attr( 'data-result', "success" );
+
 			},
 
 			/**
@@ -328,14 +343,13 @@
 			 * @return Void
 			 */
 			verifyType: function ( $target, options ) {
+
 				var
 					type,
 					defaultValue = '',
 					value = $target.val();
-				if ( defaultValue == value ) {
-					Plugin.clearClassNameSetAttr( $target );
-					return;
-				}
+
+				if ( defaultValue == value ) return;
 
 				for ( type in options.type ) {
 
@@ -348,11 +362,16 @@
 					};
 
 					var arr = MsgAndRules.RUEL( _options );
+
 					Plugin.showMsg( $target, arr[ 1 ], arr[ 0 ], options.hoverMsg );
+
 					if ( !arr[ 0 ] ) return;
+
 				}
 				if ( options.promptly ) {
+
 					Config.ajax( options.ajaxConfig );
+
 				}
 			},
 
@@ -369,30 +388,48 @@
 				Plugin.clearClassNameSetAttr( $target );
 
 				if ( flag ) {
+
 					$target.attr( 'data-result', 'success' );
+
 					$target.addClass( 'u-input-cor' );
+
 				} else {
 					$target.attr( 'data-result', 'error' );
+
 					$target.before( '<div class="combo-box r f-bg-danger-lt">' + msg + '</div>' )
 						.addClass( 'u-input-err' );
+
 				}
 				if ( test && 'error' === $target.attr( 'data-result' ) ) {
-					var dom = $target.siblings( '.f-bg-danger-lt' );
-					dom.hide();
+
+					var $msg = $target.siblings( '.f-bg-danger-lt' );
+
+					$msg.hide();
+
 					$target.hover( function () {
-						dom.show();
+
+						$msg.show();
+
 					}, function () {
-						dom.hide();
+
+						$msg.hide();
+
 					} );
 				}
 			},
+
 			hoverMsg: function ( $target ) {
+
 				var flag = $target.attr( 'data-hoverMsg' );
+
 				if ( 'true' === flag ) {
+
 					return true;
+
 				}
 				return false;
 			},
+
 			/**
 			 * 对html属性[data-type]进行转换
 			 * @method function
@@ -400,9 +437,11 @@
 			 * @return Object         返回验证类型对象
 			 */
 			typeConvert: function ( $target ) {
+
 				var
 					type = $target.attr( 'data-type' ),
 					parm = 'parm=' + type;
+
 				return eval( parm );
 			},
 
@@ -413,10 +452,15 @@
 			 * @return Number
 			 */
 			defaultMinL: function ( $target ) {
+
 				var minL = $target.attr( 'data-minl' );
+
 				if ( '' == minL || undefined == minL || null == minL ) {
+
 					return minL = 0;
+
 				}
+
 				return minL;
 			},
 
@@ -427,7 +471,7 @@
 			 * @return Number
 			 */
 			defaultMaxL: function ( $target ) {
-				var maxL = $target.attr( 'data-maxl;' );
+				var maxL = $target.attr( 'data-maxl' );
 				if ( '' == maxL || undefined == maxL || null == maxL ) {
 					return maxL = 99;
 				}
@@ -443,19 +487,29 @@
 			requireMethod: function ( $target ) {
 				var reqmsg = $target.attr( 'data-reqmsg' );
 				if ( undefined == reqmsg || "" == reqmsg.trim() || null == reqmsg ) {
-					reqmsg = '这里必填项'
+
+					reqmsg = '这里必填项';
+
 				}
+
 				var options = {
 					str: $target.val(),
 					type: 'isNotEmpty',
 					msg: reqmsg
-				}
+				};
+
 				var arr = MsgAndRules.RUEL( options );
+
 				if ( arr[ 0 ] ) {
+
 					Plugin.showMsg( $target, arr[ 1 ], arr[ 0 ] );
+
 					$target.attr( 'data-result', 'success' );
+
 				} else {
+
 					Plugin.showMsg( $target, arr[ 1 ], arr[ 0 ] );
+
 				}
 			}
 		};
@@ -476,6 +530,7 @@
 						error: function () {}
 					},
 					options;
+
 				if ( arguments.length == 1 ) {
 
 					options = $.extend( defaults, arguments[ 0 ] || {} );
@@ -503,6 +558,7 @@
 			 * @return {type} Booleam
 			 */
 			required: function () {
+
 				var
 
 					dataVerifyList = $( arguments[ 1 ] )
@@ -542,6 +598,7 @@
 			 * @return void
 			 */
 			setStatus: function () {
+
 				var
 					options = arguments[ 1 ],
 					$target = $( this );
@@ -581,13 +638,13 @@
 
 				var options = $.extend( defaults, options || {} );
 
-				this.addClass( 'data-verify' );
+				$this.addClass( 'data-verify' );
 
-				this.attr( 'data-result', 'success' );
+				$this.attr( 'data-result', 'success' );
 
 				if ( eval( options.required ) ) {
 
-					this.attr( {
+					$this.attr( {
 
 						'data-required': true,
 
@@ -597,18 +654,18 @@
 
 				} else {
 
-					this.attr( 'data-required', false );
+					$this.attr( 'data-required', false );
 
 				}
 
 				//获取当前DOM的nodename select为change事件，input为blur事件，【预留出radio】
-				switch ( this[ 0 ].nodeName.toLocaleLowerCase() ) {
+				switch ( $this[ 0 ].nodeName.toLocaleLowerCase() ) {
 
 				case 'select':
 
-					this.change( function () {
+					$this.change( function () {
 
-						Plugin.verifyType( $( this ), options );
+						Plugin.verifyType( $this, options );
 
 					} );
 
@@ -616,15 +673,15 @@
 
 				default:
 
-					this.focus( function ( event ) {
+					$this.focus( function ( event ) {
 
-						Plugin.clearClassNameSetAttr( $( this ) );
+						Plugin.clearClassNameSetAttr( $this );
 
 					} );
 
-					this.blur( function () {
+					$this.blur( function () {
 
-						Plugin.verifyType( $( this ), options );
+						Plugin.verifyType( $this, options );
 
 					} );
 				}
