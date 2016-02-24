@@ -20,19 +20,26 @@
 			/**
 			 * 验证过程主程，
 			 * @method RUEL
-			 * @param  {Object} options 参数对象
-			 * @return {Array}
+			 * @param  Object options 参数对象
+			 * @return Array
 			 */
 			RUEL: function ( options ) {
+
 				var flag, errmsg = "";
 
 				flag = MsgAndRules.RULES[ options.type ]( options.str, options.minL, options.maxL );
+
 				if ( '' == $.trim( options.msg ) || undefined == options.msg || null == options.msg ) {
+
 					errmsg = MsgAndRules.MSG[ options.type ];
+
 				} else {
+
 					errmsg = options.msg;
+
 				}
 				var arr = [ flag, errmsg ];
+
 				return arr;
 			},
 
@@ -220,19 +227,19 @@
 				},
 
 				//检查座机号
-				checkPhone: function ( strPhone ) {
+				checkPhone: function ( str ) {
 					var phoneRegWithArea = /^[0][1-9]{2,3}-[0-9]{5,10}$/;
 					var phoneRegNoArea = /^[1-9]{1}[0-9]{5,8}$/;
 					var prompt = "您输入的电话号码不正确!";
-					if ( strPhone.length > 9 ) {
-						if ( phoneRegWithArea.test( strPhone ) ) {
+					if ( str.length > 9 ) {
+						if ( phoneRegWithArea.test( str ) ) {
 							return true;
 						} else {
 							//alert(prompt);
 							return false;
 						}
 					} else {
-						if ( phoneRegNoArea.test( strPhone ) ) {
+						if ( phoneRegNoArea.test( str ) ) {
 							return true;
 						} else {
 							//alert(prompt);
@@ -253,10 +260,10 @@
 				},
 
 				//检查输入字符串是否符合正整数格式
-				isNumber: function ( s ) {
+				isNumber: function ( str ) {
 					var regu = "^[0-9]+$";
 					var re = new RegExp( regu );
-					if ( s.search( re ) != -1 ) {
+					if ( str.search( re ) != -1 ) {
 						return true;
 					} else {
 						return false;
@@ -264,10 +271,10 @@
 				},
 
 				//判断字符串是否只由英文和数字下划线组成
-				isNumberOr_Letter: function ( s ) {
+				isNumberOr_Letter: function ( str ) {
 					var regu = "^[0-9a-zA-Z\_]+$";
 					var re = new RegExp( regu );
-					if ( re.test( s ) ) {
+					if ( re.test( str ) ) {
 						return true;
 					} else {
 						return false;
@@ -301,6 +308,7 @@
 			ajaxConfigConvert: function ( $target ) {
 
 				var
+
 					conifg = $target.attr( 'data-ajaxConfig' ),
 					parm = 'parm=' + conifg;
 
@@ -351,15 +359,20 @@
 
 				if ( defaultValue == value ) return;
 
+				$.extend( true, MsgAndRules.RULES, options.editType );
+
+				// console.log(MsgAndRules.RULES);
+
 				for ( type in options.type ) {
 
-					var _options = {
-						str: value,
-						type: type,
-						msg: options.type[ type ],
-						minL: options.minL,
-						maxL: options.maxL
-					};
+					var
+						_options = {
+							str: value,
+							type: type,
+							msg: options.type[ type ],
+							minL: options.minL,
+							maxL: options.maxL
+						};
 
 					var arr = MsgAndRules.RUEL( _options );
 
@@ -368,6 +381,7 @@
 					if ( !arr[ 0 ] ) return;
 
 				}
+
 				if ( options.promptly ) {
 
 					Config.ajax( options.ajaxConfig );
@@ -383,7 +397,7 @@
 			 * @param  Booleam flag   正确&&错误
 			 * @return Void
 			 */
-			showMsg: function ( $target, msg, flag, test ) {
+			showMsg: function ( $target, msg, flag, hoverMsg ) {
 
 				Plugin.clearClassNameSetAttr( $target );
 
@@ -400,7 +414,7 @@
 						.addClass( 'u-input-err' );
 
 				}
-				if ( test && 'error' === $target.attr( 'data-result' ) ) {
+				if ( hoverMsg && 'error' === $target.attr( 'data-result' ) ) {
 
 					var $msg = $target.siblings( '.f-bg-danger-lt' );
 
@@ -492,23 +506,32 @@
 
 				}
 
-				var options = {
-					str: $target.val(),
-					type: 'isNotEmpty',
-					msg: reqmsg
-				};
+				var
+					options = {
+						str: $target.val(),
+						type: 'isNotEmpty',
+						msg: reqmsg,
+						hoverMsg: function () {
+							var flag = $target.attr( 'data-hoverMsg' );
+							if ( "true" === flag ) {
+								return true;
+							} else if ( "false" === flag ) {
+								return false;
+							}
+						}()
+					};
 
 				var arr = MsgAndRules.RUEL( options );
 
 				if ( arr[ 0 ] ) {
 
-					Plugin.showMsg( $target, arr[ 1 ], arr[ 0 ] );
+					Plugin.showMsg( $target, arr[ 1 ], arr[ 0 ], options.hoverMsg );
 
 					$target.attr( 'data-result', 'success' );
 
 				} else {
 
-					Plugin.showMsg( $target, arr[ 1 ], arr[ 0 ] );
+					Plugin.showMsg( $target, arr[ 1 ], arr[ 0 ], options.hoverMsg );
 
 				}
 			}
@@ -524,8 +547,10 @@
 						async: true,
 						type: 'get',
 						url: '',
-						data: '',
+						data: {},
 						dataType: 'json',
+						beforeSend: function () {},
+						complete: function () {},
 						success: function () {},
 						error: function () {}
 					},
@@ -540,13 +565,14 @@
 					options = $.extend( defaults, arguments[ 1 ] || {} );
 
 				}
-
 				$.ajax( {
 					async: options.async,
 					type: options.type,
 					url: options.url,
-					data: options.data,
+					data: options.data(),
+					beforeSend: options.beforeSend,
 					dataType: options.dataType,
+					options: options.complete,
 					success: options.success,
 					error: options.error
 				} );
@@ -555,7 +581,7 @@
 			/**
 			 * 验证所有必填项是否通过
 			 * @method function
-			 * @return {type} Booleam
+			 * @return type Booleam
 			 */
 			required: function () {
 
@@ -608,13 +634,23 @@
 					$target.addClass( 'data-verify' );
 
 				}
+				var hoverMsg = function () {
+
+					var flag = $target.attr( 'data-hoverMsg' );
+					if ( "true" === flag ) {
+						return false;
+					} else if ( "false" === flag ) {
+						return true;
+					}
+				}()
+
 				if ( options.flag ) {
 
-					Plugin.showMsg( $target, options.msg, options.flag );
+					Plugin.showMsg( $target, options.msg, options.flag, hoverMsg );
 
 				} else {
 
-					Plugin.showMsg( $target, options.msg, options.flag );
+					Plugin.showMsg( $target, options.msg, options.flag, hoverMsg );
 
 				}
 			},
@@ -622,19 +658,19 @@
 			//程序主体
 			init: function ( options ) {
 
-				var
-
 				//默认参数配置
+				var
 					defaults = {
-					promptly: Plugin.defaultPrompty( $this ),
-					ajaxConfig: Plugin.ajaxConfigConvert( $this ),
-					required: $this.attr( 'data-required' ),
-					minL: Plugin.defaultMinL( $this ),
-					maxL: Plugin.defaultMaxL( $this ),
-					type: Plugin.typeConvert( $this ),
-					requiredMsg: this.attr( 'data-requiredMsg' ),
-					hoverMsg: Plugin.hoverMsg( $this )
-				};
+						editType: {},
+						promptly: Plugin.defaultPrompty( $this ),
+						ajaxConfig: Plugin.ajaxConfigConvert( $this ),
+						required: $this.attr( 'data-required' ),
+						minL: Plugin.defaultMinL( $this ),
+						maxL: Plugin.defaultMaxL( $this ),
+						type: Plugin.typeConvert( $this ),
+						requiredMsg: this.attr( 'data-requiredMsg' ),
+						hoverMsg: Plugin.hoverMsg( $this )
+					};
 
 				var options = $.extend( defaults, options || {} );
 
@@ -658,6 +694,22 @@
 
 				}
 
+				if ( options.hoverMsg ) {
+
+					$this.attr( "data-hoverMsg", "true" );
+
+				} else {
+
+					$this.attr( "data-hoverMsg", "false" );
+
+				}
+
+				$this.focus( function ( event ) {
+
+					Plugin.clearClassNameSetAttr( $this );
+
+				} );
+
 				//获取当前DOM的nodename select为change事件，input为blur事件，【预留出radio】
 				switch ( $this[ 0 ].nodeName.toLocaleLowerCase() ) {
 
@@ -673,14 +725,8 @@
 
 				default:
 
-					$this.focus( function ( event ) {
-
-						Plugin.clearClassNameSetAttr( $this );
-
-					} );
-
 					$this.blur( function () {
-
+						// $this.val();
 						Plugin.verifyType( $this, options );
 
 					} );
