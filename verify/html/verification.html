@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>验证页面</title>
+    <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
+    <script src="../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../bootstrap/js/bootstrap.min.js"></script>
+    <script src="../js/verificationMVC.js" charset="utf-8"></script>
+  </head>
+
+  <body style="padding:20px">
+    <form id="form">
+      <div class="col-xs-3">
+        <div class="form-group  has-feedback">
+          <label class="control-label">中文验证：</label>
+          <input class="form-control" id="chinese" />
+        </div>
+      </div>
+      <div class="col-xs-3">
+        <div class="form-group  has-feedback">
+          <label class="control-label">身份证验证：</label>
+          <input class="form-control" id="idCard" />
+        </div>
+      </div>
+      <div class="col-xs-3">
+
+        <div class="form-group  has-feedback">
+          <label class="control-label">必填验证</label>
+          <input class="form-control" />
+        </div>
+      </div>
+      <div class="col-xs-3">
+        <div class="form-group  has-feedback">
+          <label class="control-label">验证</label>
+          <input class="form-control" />
+        </div>
+      </div>
+
+
+      <div class="col-xs-6">
+        <div class="form-group has-success has-feedback">
+          <label class="control-label">正确样式</label>
+          <input type="text" class="form-control">
+          <span class="glyphicon glyphicon-ok form-control-feedback"></span>
+        </div>
+      </div>
+
+      <div class="col-xs-6">
+        <div class="form-group has-error has-feedback">
+          <label class="control-label">错误样式</label>
+          <input type="text" class="form-control">
+          <span class="glyphicon glyphicon-remove form-control-feedback"></span>
+        </div>
+      </div>
+
+      <div class="col-xs-6">
+        <div class="form-group has-warning has-feedback">
+          <label class="control-label" for="inputWarning2">Input with warning</label>
+          <input type="text" class="form-control" id="inputWarning2" aria-describedby="inputWarning2Status">
+          <span class="glyphicon glyphicon-warning-sign form-control-feedback" aria-hidden="true"></span>
+          <span id="inputWarning2Status" class="sr-only">(warning)</span>
+        </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="form-group has-feedback">
+          <label class="control-label"> 没有样式</label>
+          <input type="text" class="form-control">
+          <!-- <span class="glyphicon glyphicon-ok form-control-feedback" ></span> -->
+        </div>
+      </div>
+    </form>
+
+    <button type="button" name="button" onclick="check()">按钮</button>
+  </body>
+  <script type="text/javascript">
+    $('#chinese').verify({
+      required: true,
+      type: {
+        onlyZh: '这里必须是中文'
+      },
+      requiredMsg:"必填项啊 我艹 "
+    });
+    $('#idCard').verify({
+      type: {
+        checkIdCard: "aaaa"
+      }
+    });
+
+    function check() {
+      console.log($("#form").verify("checkAll"));
+
+    }
+
+  </script>
+
+</html>
