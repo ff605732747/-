@@ -1,14 +1,5 @@
-###html结构
-      <div class="u-switch" id="test">
-          <input type="checkbox">
-        </div>
-        
----
-
-### js部分
-
 /*
-	fwq 2016/3/21
+	yuu 2016/3/21
 	mvc版
  */
 ;
@@ -70,7 +61,7 @@
 						click: function ( event ) {
 
 							event.stopPropagation();
-				
+
 							var $input = $element.children( 'input' );
 							options.changeBefor( $input );
 							Config.controller.view.change();
