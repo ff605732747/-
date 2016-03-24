@@ -6,35 +6,39 @@
 ;
 ( function () {
 	$.fn.verify = function () {
-		var $element = $( this );
-		var Config = {
-			controller: {
-				start: function ( options ) {
-					Config.controller.view.start( options );
+
+		var
+			$element = $( this ),
+			$val = '',
+			Config = {
+				controller: {
+					start: function ( options ) {
+						Config.controller.view.start( options );
+					},
+					set: function ( value, options ) {
+						Config.controller.model.setState( value, options );
+					}
 				},
-				set: function ( value, options ) {
-					Config.controller.model.setState( value, options );
+				checkAll: function () {
+					var flag = true;
+					$element.find( '.verify' )
+						.trigger( 'blur' )
+						.each( function ( index, el ) {
+							if ( 'false' === $( el )
+								.attr( 'data-result' ) ) {
+								return flag = false;
+							}
+						} );
+					return flag;
 				}
-			},
-			checkAll: function () {
-				var flag = true;
-				$element.find( '.verify' )
-					.trigger( 'blur' )
-					.each( function ( index, el ) {
-						if ( 'false' === $( el )
-							.attr( 'data-result' ) ) {
-							return flag = false;
-						}
-					} );
-				return flag;
-			}
-		};
+			};
 
 		Config.controller.view = {
 
 			start: function ( options ) {
 				var eventType;
-				$element.addClass( 'verify' ).attr('data-result', true);;
+				$element.addClass( 'verify' )
+					.attr( 'data-result', true );;
 				'input' === $element[ 0 ].nodeName.toLocaleLowerCase() ? eventType = 'blur' : eventType = 'change';
 				$element.on( 'focus', function () {
 					Config.controller.view.clearState();
@@ -44,32 +48,47 @@
 				} );
 			},
 			clearState: function () {
+
 				$element
 					.parent()
-					.removeClass( 'has-success has-error' )
-					.children( 'span.glyphicon ' )
+					.removeClass( 'has-success has-error' );
+
+				$element.nextAll()
 					.remove();
 			},
 			change: function ( options ) {
 
 				Config.controller.set( $element.val(), options );
+
 			},
 			update: function ( flag, msg ) {
+
+				Config.controller.view.clearState();
 				var
 					className = '',
-					icon = '';
-
-				flag ? icon = '<span class="glyphicon glyphicon-ok form-control-feedback"></span>' : icon = '  <span class="glyphicon glyphicon-remove form-control-feedback"></span>';
+					iconStr = '<span class="glyphicon {StateClass} form-control-feedback"></span>',
+					tip = '<div class="verify-tip">{text}</div>',
+					iconClass = '';
+				flag ? iconClass = 'glyphicon-ok >' : iconClass = '  glyphicon-remove ';
+				iconStr = iconStr.replace( '{StateClass}', iconClass );
 				flag ? className = 'has-success' : className = 'has-error ';
+
+				if ( !flag ) {
+					tip = tip.replace( "{text}", msg );
+					$element.parent()
+						.append( tip );
+				}
 
 				$element.parent()
 					.addClass( className )
-					.append( icon )
+					.append( iconStr );
 				$element.attr( 'data-result', flag );
+
 			}
 		}
 
 		Config.controller.model = {
+
 			SETTING: {
 				customType: {},
 				required: false,
@@ -216,12 +235,22 @@
 				}
 			},
 			setState: function ( value, options ) {
+
 				var
 					options = $.extend( true, this.SETTING, options ),
 					flag = true,
 					message = '',
 					type;
-				//先验是否必填
+
+				/**
+				 * 判断是否为必填项，若是必填项,value值传入验证，若验证回返true，则表示未通过。
+				 * 则判断是否传入提示语句，没传入的话就使用默认提示语
+				 * 终断程序执行;
+				 * 若不是必填则验证value是否为""，为""则终断程序执行
+				 * @method if
+				 * @param  {[type]} options.required 是否为必填项
+				 * @return {[void]}
+				 */
 				if ( options.required ) {
 					if ( this.checkRules[ 'required' ].check( value ) ) {
 						options.requiredMsg ? message = options.requiredMsg : message = this.checkRules[ 'required' ].msg;
@@ -231,12 +260,18 @@
 					};
 				} else if ( '' == $element.val() ) return;
 
+				/**
+				 * 根据传入的验证类型 循环遍历
+				 * 若未通过验证 则终断循环，返回提示语 和false
+				 */
 				for ( type in options.type ) {
+
 					flag = this.checkRules[ type ].check( value );
+
 					if ( !flag ) {
+
 						$.trim( options.type[ type ] ) ? message = options.type[ type ] : message = this.checkRules[ type ].msg;
-						Config.controller.model.change( false, message );
-						return false;
+						return Config.controller.model.change( false, message );
 					}
 				}
 				Config.controller.model.change( true, message );

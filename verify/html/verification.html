@@ -8,17 +8,33 @@
     <script src="../js/jquery.min.js"></script>
     <script type="text/javascript" src="../bootstrap/js/bootstrap.min.js"></script>
     <script src="../js/verificationMVC.js" charset="utf-8"></script>
+    <style>
+      .verify-tip {
+        position: absolute;
+        line-height: 20px;
+        text-align: center;
+        height: 24px;
+        background-color: #BB4442;
+        color: #ffffff;
+        font-weight: bold;
+        right: 0;
+        padding: 2px 5px;
+        border-radius: 0px 0px 4px 4px;
+      }
+
+    </style>
   </head>
 
   <body style="padding:20px">
     <form id="form">
-      <div class="col-xs-3">
+      <div class="col-lg-6">
         <div class="form-group  has-feedback">
           <label class="control-label">中文验证：</label>
           <input class="form-control" id="chinese" />
+  
         </div>
       </div>
-      <div class="col-xs-3">
+      <div class="col-lg-6">
         <div class="form-group  has-feedback">
           <label class="control-label">身份证验证：</label>
           <input class="form-control" id="idCard" />
@@ -80,7 +96,7 @@
       type: {
         onlyZh: '这里必须是中文'
       },
-      requiredMsg:"必填项啊 我艹 "
+      requiredMsg: "必填项啊 我艹 "
     });
     $('#idCard').verify({
       type: {
