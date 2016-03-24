@@ -24,38 +24,57 @@
 
 					//controller
 					controller: {
+
 						start: function ( options ) {
+
+							//状态初始化
 							Config.controller.view.init();
 							Config.controller.view.start( options );
+
 						},
 						set: function () {
+
 							this.model.setState();
+
 						}
 					},
+
+					//设置开关是否禁用
 					setEnable: function () {
+
 						$element
 							.children( 'input' )
 							.prop( 'disabled', arguments[ 1 ] );
+
 					},
+
+					//设置开关状态
 					setState: function () {
+
 						$element
 							.children( 'input' )
 							.prop( 'checked', arguments[ 1 ] );
 						Config.controller.view.update( arguments[ 1 ] );
+
 					}
 				};
 
 			//view
 			Config.controller.view = {
+
 				init: function () {
+
 					var
 						$input = $element.children( 'input' ),
 						flag = $input.is( ":checked" );
+
 					if ( !$element.hasClass( 'switchState' ) ) {
 						Config.controller.view.update( flag );
 					}
+
 				},
 				start: function ( options ) {
+
 					var
 						defaults = {
 							changeBefor: function ( $input ) {},
@@ -68,9 +87,8 @@
 					$element.on( {
 						click: function ( event ) {
 
-							event.stopPropagation();
-
 							var $input = $element.children( 'input' );
+							event.stopPropagation();
 							options.changeBefor( $input );
 							Config.controller.view.change();
 							options.changeAfter( $input );
@@ -78,11 +96,11 @@
 						}
 					} );
 				},
-
 				change: function () {
-					Config.controller.set();
-				},
 
+					Config.controller.set();
+
+				},
 				update: function () {
 
 					var $input, flag, _icon, stateClass;
@@ -104,21 +122,26 @@
 					$element.addClass( stateClass )
 						.append( _icon )
 						.addClass( 'switchState' );
+
 				}
 			};
 
 			//model
 			Config.controller.model = {
+
 				setState: function () {
 
 					var
 						$input = $element.children( 'input' ),
 						flag = $input.is( ":checked" );
+
 					Config.controller.model.change( $input, !flag );
+
 				},
 				change: function ( $input, flag ) {
 					Config.controller.view.update( $input, flag );
 				}
+
 			};
 
 			method = arguments[ 0 ];
