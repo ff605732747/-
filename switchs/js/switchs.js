@@ -1,8 +1,6 @@
 /*
 	yuu 2016/3/21
 	mvc版
-	fwq 2016/3/21
-	mvc版
 	switch 组件：
 	若在input上使用disabled也可以禁用开关
 	事件:changeBefor 状态改变前，传递checkbox对象作为回掉参数
